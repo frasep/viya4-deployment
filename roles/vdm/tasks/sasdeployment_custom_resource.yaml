@@ -86,6 +86,7 @@
             --image-registry "{{ V4_CFG_CR_HOST }}"
             --deployment-data "{{ ORCHESTRATION_TOOLING_DIRECTORY }}/data/license/certs.zip"
             --user-content "{{ ORCHESTRATION_TOOLING_DIRECTORY }}/data/"
+            --repository-warehouse "{{ V4_DEPLOYMENT_OPERATOR_REPO_WAREHOUSE }}"
       args:
         chdir: "{{ ORCHESTRATION_TOOLING_DIRECTORY }}"
       register: sasdeployment
@@ -120,6 +121,7 @@
         --image-registry {{ V4_CFG_CR_HOST }}
         --deployment-data /data/license/certs.zip
         --user-content /data
+        --repository-warehouse "{{ V4_DEPLOYMENT_OPERATOR_REPO_WAREHOUSE }}"
       register: sasdeployment
     - name: sasdeployment custom resource - Write SAS Viya deployment manifest
       copy:
@@ -196,6 +198,7 @@
             --image-registry "{{ V4_CFG_CR_HOST }}"
             --deployment-data "{{ ORCHESTRATION_TOOLING_DIRECTORY }}/data/license/certs.zip"
             --user-content "{{ ORCHESTRATION_TOOLING_DIRECTORY }}/data/"
+            --repository-warehouse "{{ V4_DEPLOYMENT_OPERATOR_REPO_WAREHOUSE }}"
       args:
         chdir: "{{ ORCHESTRATION_TOOLING_DIRECTORY }}"
       register: sasdeployment
@@ -229,6 +232,7 @@
         --image-registry {{ V4_CFG_CR_HOST }}
         --deployment-data /data/license/certs.zip
         --user-content /data
+        --repository-warehouse "{{ V4_DEPLOYMENT_OPERATOR_REPO_WAREHOUSE }}"
       register: sasdeployment
     - name: sasdeployment custom resource - Write SAS Viya uninstall manifest
       copy:

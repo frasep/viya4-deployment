@@ -98,3 +98,4 @@ V4_DEPLOYMENT_OPERATOR_ENABLED: true
 V4_DEPLOYMENT_OPERATOR_SCOPE: cluster
 V4_DEPLOYMENT_OPERATOR_NAMESPACE: sasoperator
 V4_DEPLOYMENT_OPERATOR_CRB: sasoperator
+V4_DEPLOYMENT_OPERATOR_REPO_WAREHOUSE: http://repository-warehouse-nginx.viya4-warehouse.svc.cluster.local:80
