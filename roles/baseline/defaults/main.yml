@@ -13,7 +13,7 @@ CERT_MANAGER_NAME: cert-manager
 CERT_MANAGER_NAMESPACE: cert-manager
 CERT_MANAGER_CHART_NAME: cert-manager
 CERT_MANAGER_CHART_URL: https://charts.jetstack.io/
-CERT_MANAGER_CHART_VERSION: 1.11.0
+CERT_MANAGER_CHART_VERSION: 1.13.1
 CERT_MANAGER_CONFIG:
   installCRDs: "true"
   extraArgs:
@@ -35,12 +35,10 @@ ingressVersions:
     value: 23
     api:
       chartVersion: 4.3.0
-      appVersion: 1.4.0
   k8sMinorVersionFloor:
     value: 24
     api:
       chartVersion: 4.7.1
-      appVersion: 1.8.1
 
 ## Ingress-nginx - Ingress
 ##
@@ -113,6 +111,17 @@ NFS_CLIENT_CONFIG:
   storageClass:
     archiveOnDelete: "false"
     name: sas
+# EFS best practice NFS mount options for the aws provider
+NFS_EFS_CLIENT_CONFIG:
+  nfs:
+    mountOptions:
+      - noresvport
+      - rsize=1048576
+      - wsize=1048576
+      - soft
+      - timeo=600
+      - retrans=2
+      - _netdev
 
 ## pg-storage storage class config
 PG_NFS_CLIENT_NAME: nfs-subdir-external-provisioner-pg-storage

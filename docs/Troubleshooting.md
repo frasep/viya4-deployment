@@ -11,6 +11,9 @@
   - [Ingress-Nginx - use-forwarded-headers disabled](#ingress-nginx---use-forwarded-headers-disabled)
   - [Deploying with the SAS Orchestration Tool using a Provider Based Kubernetes Configuration File](#deploying-with-the-sas-orchestration-tool-using-a-provider-based-kubernetes-configuration-file)
   - [SAS Risk Cirrus Solutions Multi-tenancy onboard failure](#sas-risk-cirrus-solutions-multi-tenancy-onboard-failure)
+  - [Applying a New License for your SAS Viya Platform Deployment](#applying-a-new-license-for-your-sas-viya-platform-deployment)
+
+
 
 ## Debug Mode
 Debug mode can be enabled by adding "-vvv" to the end of the docker or ansible commands
@@ -71,7 +74,7 @@ The orchestration task attempted to log into the container registry defined by `
 
 ### Solution:
 
-As of [release 6.0.0](https://github.com/sassoftware/viya4-deployment/releases/tag/6.0.0), it's required that if you are running this project using Ansible directly on your workstation, it needs Docker to be installed and the executing user should be able to access it. This is so that we can consume the [sas-orchestration tool](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/p0nid9gu3x2cvln1pzpcxa68tpom.htm#p1garxk7w4avg2n1hd6e4nt5kks7), which is available as a Docker image to generate the [SASDeployment Custom Resource file](https://go.documentation.sas.com/doc/en/itopscdc/default/dplyml0phy0dkr/p0nid9gu3x2cvln1pzpcxa68tpom.htm#p012wq5dhcqbx8n12abyqe25m4nu)
+As of [release 6.0.0](https://github.com/sassoftware/viya4-deployment/releases/tag/6.0.0), it's required that if you are running this project using Ansible directly on your workstation, it needs Docker to be installed and the executing user should be able to access it. This is so that we can consume the [sas-orchestration tool](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=p11063ane8wtdtn1ksq12gxzchu8.htm), which is available as a Docker image to generate the [SASDeployment Custom Resource file](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=p0nid9gu3x2cvln1pzpcxa68tpom.htm#p012wq5dhcqbx8n12abyqe25m4nu)
 
 On your host:
 * Ensure that Docker is installed on your machine, the [Dependency Versions documentation](./user/Dependencies.md) states that you need at least version 20.10.10.
@@ -80,7 +83,7 @@ On your host:
 ## SAS Viya Deployment Operator
 
 ### Symptom:
-When the SAS Viya Platform Deployment Operator is not working as expected, three different sources can be used to diagnose problems. Follow the commands from the [SAS Viya Platform deployment guide](https://go.documentation.sas.com/doc/en/sasadmincdc/default/dplyml0phy0dkr/p127f6y30iimr6n17x2xe9vlt54q.htm#p11o2ghzdkqm6kn1qkxqr2wr3nkh) to check out the SAS Viya Platform Deployment Operator Pod, the SASDeployment Custom Resource, and the Reconcile Job. Remediation steps are also present on that page.
+When the SAS Viya Platform Deployment Operator is not working as expected, three different sources can be used to diagnose problems. Follow the commands from the [SAS Viya Platform deployment guide](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=p127f6y30iimr6n17x2xe9vlt54q.htm#p11o2ghzdkqm6kn1qkxqr2wr3nkh) to check out the SAS Viya Platform Deployment Operator Pod, the SASDeployment Custom Resource, and the Reconcile Job. Remediation steps are also present on that page.
 
 ## EKS - Cluster Autoscaler Installation
 
@@ -358,3 +361,22 @@ In the current multi-tenancy design of viya4-deployment the required tenant kube
 This is a known issue at the moment and will be fixed in future release of viya4-deployment. Meanwhile as a workaround users with SAS Risk Cirrus Solutions product please follow the manual steps to apply the required podtemplates and onboard tenants.
 
 After the initial provider deployment stabilizes follow the steps in `$deploy/sas-bases/examples/sas-tenant-job/README.md` to onboard tenants manually.
+
+## Applying a New License for your SAS Viya Platform Deployment
+
+### Symptom:
+
+You have an existing SAS Viya platform deployment that was created using the viya4-deployment project, and you have a new license that you would like to apply to your deployment.
+
+### Solution:
+
+After downloading the license file perform the following steps:
+
+1. Set `V4_CFG_LICENSE` to path where your license file is located. Note, it is a `.jwt` file.
+2. Using viya4-deployment rerun the `viya,install` tasks to regenerate your `kustomization.yaml` that will now have an updated reference to the new license file, generate the SASDeployment custom resource file, and apply it into your cluster.
+3. You will see your license file referenced in the `kustomization.yaml` as a generator, look for `site-config/vdm/generators/sas-license.yaml`
+   * Note: If you are no longer using viya4-deployment and are updating the license on your own by following the SAS Viya Platform Operations Guide, this would be the line to remove from your `kustomization.yaml`
+
+Information about licenses from the [SAS Viya Platform Operations Guide](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=k8sag&docsetTarget=n14rkqa3cycmd0n1ub50k47x7lbb.htm)
+
+Note, these steps are only applicable for updating your license file, if you are going to be updating the SAS deployment or including additional products in your order we recommend that your perform your update manually. See this note in the [README](https://github.com/sassoftware/viya4-deployment#updating-sas-viya-manually)
