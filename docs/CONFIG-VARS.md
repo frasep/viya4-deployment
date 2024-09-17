@@ -11,7 +11,7 @@ Supported configuration variables are listed in the table below.  All variables 
     - [RWX Filestore](#rwx-filestore)
     - [Azure](#azure)
     - [AWS](#aws)
-    - [GCP](#gcp)
+    - [Google Cloud](#google-cloud)
   - [SAS Software Order](#sas-software-order)
   - [SAS API Access](#sas-api-access)
   - [Container Registry Access](#container-registry-access)
@@ -115,7 +115,7 @@ When V4_CFG_MANAGE_STORAGE is set to `true`, the `sas` and `pg-storage` storage 
 
 When V4_CFG_MANAGE_STORAGE is set to `true`, the efs-provisioner is deployed, the `sas` and `pg-storage` storage classes are created (EFS or NFS).
 
-### GCP
+### Google Cloud
 
 When V4_CFG_MANAGE_STORAGE is set to `true`, the `sas` and `pg-storage` storage classes are created (Google Filestore or NFS).
 
@@ -248,6 +248,12 @@ V4_CFG_POSTGRES_SERVERS:
 ```
 Several SAS Viya platform offerings require a second internal Postgres instance referred to as SAS Common Data Store or CDS PostgreSQL. See details [here](https://documentation.sas.com/?cdcId=itopscdc&cdcVersion=default&docsetId=dplyml0phy0dkr&docsetTarget=n08u2yg8tdkb4jn18u8zsi6yfv3d.htm#p0wkxxi9s38zbzn19ukjjaxsc0kl). The list of software offerings that include CDS PostgreSQL is located at [SAS Common Data Store Requirements (for SAS Planning and Retail Offerings)](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=itopssr&docsetTarget=p05lfgkwib3zxbn1t6nyihexp12n.htm#n03wzanutmc6gon1val5fykas9aa) in System Requirements for the SAS Viya platform. To deploy and configure a CDS PostgreSQL instance in addition to the default internal platform Postgres instance, specify "cds-postgres" for your second Postgres instance as shown in the example below:
 
+**Note**: Starting with 2024.06, the SharedServices database is not created automatically during the initial deployment of the SAS Viya platform. Instead, you must manually create it before you start the SAS Viya platform deployment.
+Please refer to [this section](https://github.com/sassoftware/viya4-deployment/blob/main/docs/user/PostgreSQL.md##202406-sharedservices-database-updated-behavior
+) in the PostgreSQL.md documentation
+
+
+
 ```bash
 V4_CFG_POSTGRES_SERVERS:
   default:
@@ -269,9 +275,9 @@ V4_CFG_POSTGRES_SERVERS:
 | password | External postgres password | string | | false | Required for external postgres servers | viya |
 | fqdn | External postgres ip/fqdn | string | | false | Required for external postgres servers | viya |
 | server_port | External postgres port | string | 5432 | false | | viya |
-| ssl_enforcement_enabled | Require ssl connection to external postgres | bool | | false | Required for external postgres servers. Ignored on GCP when using cloud sql | viya |
-| connection_name | External postgres database connection name | string | | false | Required for using cloud-sql-proxy on gcp. See [ansible cloud authentication](user/AnsibleCloudAuthentication.md) | viya |
-| service_account | External service account for postgres connectivity | string | | false | Required for using cloud-sql-proxy on gcp. See [ansible cloud authentication](user/AnsibleCloudAuthentication.md) | viya |
+| ssl_enforcement_enabled | Require ssl connection to external postgres | bool | | false | Required for external postgres servers. Ignored on Google Cloud when using cloud sql | viya |
+| connection_name | External postgres database connection name | string | | false | Required for using cloud-sql-proxy on Google Cloud. See [ansible cloud authentication](user/AnsibleCloudAuthentication.md) | viya |
+| service_account | External service account for postgres connectivity | string | | false | Required for using cloud-sql-proxy on Google Cloud. See [ansible cloud authentication](user/AnsibleCloudAuthentication.md) | viya |
 | postgres_pvc_storage_size | Size of the internal postgreSQL PVCs | string | 128Gi | false |This value can be changed but not decreased after the initial deployment. Supported for cadence versions 2022.10 and later. Only for internal databases.| viya |
 | backrest_pvc_storage_size | Size of the internal pgBackrest PVCs | string | 128Gi | false | This value can be changed but not decreased after the initial deployment. Supported for cadence versions 2022.10 and later. Only for internal databases.| viya |
 | postgres_pvc_access_mode | Access mode for the PostgreSQL PVCs | string | ReadWriteOnce | false | Supported values: [`ReadWriteOnce`,`ReadWriteMany`]. This value cannot be changed after the initial deployment. Supported for cadence versions 2022.10 and later. Only for internal databases.| viya |
@@ -376,7 +382,7 @@ Notes:
 
 ### Cluster Autoscaler
 
-Cluster-autoscaler is currently only used for AWS EKS clusters. GCP GKE and Azure AKS already have autoscaling features enabled by default.
+Cluster-autoscaler is currently only used for AWS EKS clusters. Google GKE and Azure AKS already have autoscaling features enabled by default.
 
 | Name | Description | Type | Default | Required | Notes | Tasks |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -413,12 +419,12 @@ The EBS CSI driver is currently only used for kubernetes v1.23 or later AWS EKS 
 | INGRESS_NGINX_NAMESPACE | NGINX Ingress Helm installation namespace | string | ingress-nginx | false | | baseline |
 | INGRESS_NGINX_CHART_URL | NGINX Ingress Helm chart URL | string | See [this document](https://kubernetes.github.io/ingress-nginx) for more information. | false | | baseline |
 | INGRESS_NGINX_CHART_NAME | NGINX Ingress Helm chart name | string | ingress-nginx | false | | baseline |
-| INGRESS_NGINX_CHART_VERSION | NGINX Ingress Helm chart version | string | "" | false | If left as "" (empty string), version `4.9.1` is used for Kubernetes clusters whose version is >= 1.25.X, and for Kubernetes clusters whose version is <= 1.24.X please set this variable to avoid errors. See [Supported Versions table](https://github.com/kubernetes/ingress-nginx/?tab=readme-ov-file#supported-versions-table) for the supported versions list. | baseline |
+| INGRESS_NGINX_CHART_VERSION | NGINX Ingress Helm chart version | string | "" | false | If left as "" (empty string), version `4.11.1` is used for Kubernetes clusters whose version is >= 1.26.X, and for Kubernetes clusters whose version is <= 1.25.X please set this variable to avoid errors. See [Supported Versions table](https://github.com/kubernetes/ingress-nginx/?tab=readme-ov-file#supported-versions-table) for the supported versions list. | baseline |
 | INGRESS_NGINX_CONFIG | NGINX Ingress Helm values | string | See [this file](../roles/baseline/defaults/main.yml) for more information. Altering this value will affect the cluster. | false | | baseline |
 
 ### Metrics Server
 
-Kubernetes Metrics Server installation is currently only applicable for AWS EKS clusters. GCP GKE and Azure AKS already have a metric server provided by default.
+Kubernetes Metrics Server installation is currently only applicable for AWS EKS clusters. Google GKE and Azure AKS already have a metric server provided by default.
 
 | Name | Description | Type | Default | Required | Notes | Tasks |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
