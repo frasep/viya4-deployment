@@ -19,7 +19,6 @@ This project contains Ansible code that creates a baseline cluster in an existin
   - Create affinity rules such that processes are targeted to appropriately labeled nodes
   - Create pod disruption budgets for each service such that cluster maintenance will not let the last instance of a service go down (during a node maintenance operation, for example)
   - Use kustomize to mount user private (home) directories and data directories on CAS nodes and on compute server instances
-  - Deploy [SAS Viya Monitoring for Kubernetes](https://github.com/sassoftware/viya4-monitoring-kubernetes)
   - Deploy MPP or SMP CAS servers
 
 - Manage SAS Viya Platform Deployments
@@ -184,6 +183,44 @@ For example:
 
 The SAS Viya platform customizations that are managed by viya4-deployment are located under the [templates](https://github.com/sassoftware/viya4-deployment/tree/main/roles/vdm/templates) directory. These are purposely templatized and included there since they contain a set of customizations that are common or required for a functioning SAS Viya platform deployment. These particular files are configured via exposed variables that are documented within [CONFIG-VARS.md](docs/CONFIG-VARS.md) and do not need to be manually placed under `/site-config`.
 
+#### Base kustomization.yaml ConfigMap and Secret Generators
+
+In some scenarios, a README or the deployment documentation instructs you to add a `configMapGenerator` or `secretGenerator` entry to the base `kustomization.yaml` (also known as `$deploy/kustomization.yaml`). For example:
+
+```yaml
+configMapGenerator:
+...
+- name: sas-risk-cirrus-core-parameters
+  behavior: merge
+  envs:
+    - site-config/sas-risk-cirrus-rcc/configuration.env
+...
+```
+
+In that scenario, copy the `configuration.env` file into the appropriate site-config subdirectory, and create a peer `-configmap.yaml` (or `-secret.yaml`) file:
+
+```bash
+  /deployments                                  <- parent directory
+    /demo-cluster                               <- folder per cluster
+      /demo-ns                                  <- folder per namespace
+        /site-config                            <- location for all customizations
+          /sas-risk-cirrus-rcc                  <- folder containing user defined customizations
+            /configuration.env                  <- env file
+            /sas-risk-cirrus-rcc-configmap.yaml <- individual generator file
+ ```
+
+In the `-configmap.yaml` (or `-secret.yaml`) file, create a `ConfigMapGenerator` (or `SecretGenerator`) that corresponds with the documented `configMapGenerator` (or `secretGenerator`) entry:
+
+```yaml
+apiVersion: builtin
+kind: ConfigMapGenerator
+metadata:
+  name: sas-risk-cirrus-core-parameters
+behavior: merge
+envs:
+  - site-config/sas-risk-cirrus-rcc/configuration.env 
+```
+
 #### OpenLDAP Customizations
 
 The OpenLDAP setup that is described here is a temporary solution that enables you to add users and groups and to start using SAS Viya platform applications. The OpenLDAP server that is created using these instructions does not persist. It is created and destroyed within the SAS Viya platform namespace where it is created. To add users or groups that persist, follow the SAS documentation that describes how to [Configure an LDAP Identity Provider](https://documentation.sas.com/?cdcId=sasadmincdc&cdcVersion=default&docsetId=calids&docsetTarget=n1aw4xnkvwcddnn1mv8lxr2e4tu7.htm#p0spae4p1qoto3n1qpuzafcecxhh).
@@ -222,7 +259,7 @@ Create and manage deployments using one of the following methods:
   
 ### DNS
 
-During the installation, an ingress load balancer can be installed for the SAS Viya platform and for the monitoring and logging stack. The host name for these services must be registered with your DNS provider in order to resolve to the LoadBalancer endpoint. This can be done by creating a record for each unique ingress controller host. 
+During the installation, an ingress load balancer can be installed for the SAS Viya platform. The host name for these services must be registered with your DNS provider in order to resolve to the LoadBalancer endpoint. This can be done by creating a record for each unique ingress controller host. 
 
 However, when you are managing multiple SAS Viya platform deployments, creating these records can be time-consuming. In such a case, SAS recommends creating a DNS record that points to the ingress controller's endpoint. The endpoint might be an IP address or FQDN, depending on the cloud provider. Take these steps:
 
